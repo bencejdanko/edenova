@@ -17,7 +17,7 @@ import { Text } from '~/components/ui/text';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useNavigation } from '@react-navigation/native';
-import { authHandler } from '~/lib/pocketbase/utils';
+
 
 export default function Menu() {
 
@@ -69,7 +69,6 @@ export default function Menu() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onPress={() => {
-                        authHandler.logout();
                         navigation.navigate('Auth');
                     }}
                 >

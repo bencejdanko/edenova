@@ -1,10 +1,11 @@
-import React from 'react';
 import { Button } from '~/components/ui/button';
 import { Progress } from '~/components/ui/progress';
 import { Text } from '~/components/ui/text';
 import { SafeAreaView, ScrollView, View } from 'react-native';
 
-export default function Home({ navigation }: any) {
+
+
+export default function Register({ navigation }: any) {
     return (
         <SafeAreaView>
             <ScrollView>
