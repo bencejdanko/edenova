@@ -1,25 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Animated, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Animated, SafeAreaView, ScrollView, TouchableOpacity, View, Image, TextInput } from 'react-native';
 import { Progress } from '~/components/ui/progress';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
 import { Input } from '../ui/input';
-import { CircleChevronRight, CircleChevronLeft } from 'lucide-react-native';
 import { useColorScheme } from '~/lib/useColorScheme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ToggleGroup, ToggleGroupIcon, ToggleGroupItem } from '~/components/ui/toggle-group';
+import * as ImagePicker from 'expo-image-picker';
 
-import { ChevronDown } from 'lucide-react-native';
+import PhoneInput from "react-native-phone-input";
 
+import Man from '~/assets/images/man.svg'
+import Woman from '~/assets/images/woman.svg'
+import { Plus, ChevronRight, ChevronLeft } from 'lucide-react-native';
+
+import { authHandler } from '~/lib/appwrite/auth';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 
 export default function Register({ navigation }: any) {
+
     const [step, setStep] = useState(1);
     const [progress, setProgress] = useState(17);
     const [fadeAnim] = useState(new Animated.Value(0)); // Initial opacity value
     const { isDarkColorScheme } = useColorScheme();
-    const [value, setValue] = React.useState<string[]>([]);
+    const [gender, setGender] = React.useState<string>("");
     const [date, setDate] = useState(new Date());
+    const [name, setName] = useState('');
+    const [imageURI, setImageURI] = useState('');
+
+    const [phone, setPhone] = useState('');
+    const [phoneValid, setPhoneValid] = useState(false);
+
+    const [code, setCode] = useState('');
+    const inputRef = useRef(null);
+
+    const [userId, setUserId] = useState("");
+
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -28,6 +46,39 @@ export default function Register({ navigation }: any) {
             useNativeDriver: true,
         }).start();
     }, [step]);
+
+    const handleChangeCode = (text) => {
+        if (/^[0-9]*$/.test(text) && text.length <= 6) {
+            setCode(text);
+            console.log(text)
+        }
+    };
+
+    const renderCodeBoxes = () => {
+        let boxes = [];
+        for (let i = 0; i < 6; i++) {
+            boxes.push(
+                <View key={i} style={{
+                    width: 40,
+                    height: 50,
+                    borderBottomWidth: 2,
+                    borderBottomColor: '#000',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <TextInput
+                        style={{
+                            fontSize: 24,
+                            textAlign: 'center',
+                        }}
+                        value={code[i] || ''}
+                        editable={false}
+                    />
+                </View>
+            );
+        }
+        return boxes;
+    };
 
     function increaseProgress(increaseBy: number) {
         let incremented = 0;
@@ -62,24 +113,86 @@ export default function Register({ navigation }: any) {
         fadeAnim.setValue(0); // Reset opacity for new animation
     };
 
+    const openImagePicker = async () => {
+        // Request media library permissions
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (permissionResult.granted === false) {
+            alert('Permission to access camera roll is required!');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsMultipleSelection: false,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            setImageURI(uri);
+        } else {
+            setImageURI('');
+        }
+    };
+
     function enterName() {
         return (
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
                 <Text className='text-5xl font-bold mr-[20%]'>What is your name?</Text>
                 <Text className='text-xl mt-3 font-bold'>You cannot change this later.</Text>
-                <Input className='mt-5' placeholder='Name' />
+                <Input className='mt-5' placeholder='Name' defaultValue={name} onChangeText={text => setName(text)} />
+                <Text className='text mt-3 font-bold'>This will appear publicly.</Text>
+
+                <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                    <View></View>
+
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        disabled={name == ''}
+                        onPress={() => { useStep(step + 1); increaseProgress(17); }}
+                    >
+                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                </View>
+
             </Animated.View>
         );
     }
 
-    function enterBirthday() {
+    function enterDob() {
         return (
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
-                <Text className='text-5xl font-bold mr-[20%]'>When is your birthday?</Text>
-                <DateTimePicker
-                    mode='date'
-                    value={new Date()}
-                />
+                <Text className='text-5xl font-bold mr-[20%]'>When were you born?</Text>
+
+                <Text className='text mt-3 font-bold'>You must be at least 18 to use this app.</Text>
+                <View className='mt-10' style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <DateTimePicker
+                        mode='date'
+                        value={date}
+                        onChange={(event, selectedDate) => {
+                            const currentDate = selectedDate || date;
+                            setDate(currentDate);
+                        }}
+                    />
+                </View>
+
+                <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        onPress={() => { useStep(step - 1); decreaseProgress(17); }}
+                    >
+                        <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        disabled={date > new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate())}
+                        onPress={() => { useStep(step + 1); increaseProgress(17); }}
+                    >
+                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                </View>
+
             </Animated.View>
         );
     }
@@ -88,33 +201,193 @@ export default function Register({ navigation }: any) {
         return (
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
                 <Text className='text-5xl font-bold mr-[20%]'>What is your gender?</Text>
-                <ToggleGroup value={value} onValueChange={setValue} type='multiple'>
-                    <ToggleGroupItem value='bold' aria-label='Toggle bold'>
-                        <ToggleGroupIcon icon={ChevronDown} size={18} />
+                <ToggleGroup value={gender} onValueChange={setGender} type='single' className='p-5'>
+                    <ToggleGroupItem value='m' aria-label='Toggle bold' className={`w-[100px] aspect-square ${gender === 'm' ? 'bg-[gray]' : 'bg-[lightgray]'}`}>
+                        <Man style={{ color: 'black' }} />
+                        <Text>Man</Text>
                     </ToggleGroupItem>
-                    <ToggleGroupItem value='italic' aria-label='Toggle italic'>
-                        <ToggleGroupIcon icon={ChevronDown} size={18} />
+
+                    <ToggleGroupItem value='w' aria-label='Toggle italic' className={`w-[100px] aspect-square ${gender === 'w' ? 'bg-[gray]' : 'bg-[lightgray]'}`}>
+                        <Woman style={{ color: 'black' }} />
+                        <Text>Woman</Text>
                     </ToggleGroupItem>
-                    <ToggleGroupItem value='underline' aria-label='Toggle underline'>
-                        <ToggleGroupIcon icon={ChevronDown} size={18} />
+                    <ToggleGroupItem value='o' aria-label='Toggle underline' className={`w-[100px] aspect-square ${gender === 'o' ? 'bg-[gray]' : 'bg-[lightgray]'}`}>
+                        <Plus style={{ color: 'black' }} />
+                        <Text>Other</Text>
                     </ToggleGroupItem>
                 </ToggleGroup>
+
+                <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        onPress={() => { useStep(step - 1); decreaseProgress(17); }}
+                    >
+                        <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        disabled={gender == ''}
+                        onPress={() => { useStep(step + 1); increaseProgress(17); }}
+                    >
+                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                </View>
+
             </Animated.View>
         );
     }
 
-    function enterPhone() {
 
+    function enterPhotos() {
+        return (
+            <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
+                <Text className='text-5xl font-bold mr-[20%]'>Upload a profile picture</Text>
+                <Text className='text mt-3 font-bold mr-[30%]'>You'll be able to upload more photos later.</Text>
+
+                <View>
+                    <TouchableOpacity onPress={openImagePicker}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={{ width: 150, height: 150, borderRadius: 75, backgroundColor: 'lightgray', justifyContent: 'center', alignItems: 'center', margin: 15, }}>
+                                {imageURI === '' ? (
+                                    <Plus style={{ color: 'black' }} />
+                                ) : (
+                                    <Image source={{ uri: imageURI }} style={{ width: 150, height: 150, borderRadius: 75 }} />
+                                )}
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+                <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        onPress={() => { useStep(step - 1); decreaseProgress(17); }}
+                    >
+                        <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        disabled={imageURI == ''}
+                        onPress={() => { useStep(step + 1); increaseProgress(17); }}
+                    >
+                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                </View>
+
+            </Animated.View>
+        )
+    }
+
+    function enterPhone() {
+        return (
+            <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
+                <Text className='text-5xl font-bold mr-[20%]'>What is your phone number?</Text>
+                <View className='p-5'>
+                    <PhoneInput
+                        initialValue={phone}
+                        initialCountry={'us'}
+                        ref={(ref) => { this.phone = ref; }}
+                        textProps={{
+                            placeholder: 'Phone number',
+                            keyboardType: 'phone-pad',
+                            style: { fontSize: 20 }
+                        }}
+                        autoFormat={true}
+                        onChangePhoneNumber={(text: string) => {
+                            setPhone(parsePhoneNumberFromString(text, 'US')?.number || '');
+                            setPhoneValid(this.phone.isValidNumber())
+                        }}
+                    />
+                </View>
+                <Text className='text mt-3 font-bold'>We will send you a verification code.</Text>
+
+                <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        onPress={() => { useStep(step - 1); decreaseProgress(17); }}
+                    >
+                        <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        disabled={!phoneValid}
+                        onPress={async () => { 
+                            useStep(step + 1); 
+                            increaseProgress(17); 
+                            let { token, err } = await authHandler.getMobileToken(phone);
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                setUserId(token?.userId || '');
+                            }
+                        }}
+                    >
+                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                </View>
+            </Animated.View>
+        );
     }
 
     function confirmPhone() {
 
+        return (
+
+            <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
+                <Text className='text-5xl font-bold mr-[20%]'>Enter the code we sent you</Text>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <TextInput
+                        style={{
+                            position: 'absolute',
+                            width: 0,
+                            height: 0,
+                            opacity: 0,
+                        }}
+                        value={code}
+                        onChangeText={handleChangeCode}
+                        keyboardType="number-pad"
+                        textContentType="oneTimeCode"
+                        autoComplete="sms-otp"
+                        ref={inputRef}
+                        autoFocus={true}
+                        caretHidden={true}
+                    />
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        width: '80%',
+                    }}
+                        onTouchStart={() => inputRef.current.focus()}
+                    >
+                        {renderCodeBoxes()}
+                    </View>
+                </View>
+
+                <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        onPress={() => { useStep(step - 1); decreaseProgress(17); }}
+                    >
+                        <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                    <Button
+                        className='rounded-full aspect-square w-[50px]'
+                        onPress={() => { 
+                            useStep(step + 1); 
+                            increaseProgress(17); 
+                            authHandler.verifyMobileToken(userId, code);
+                        
+                        }}
+                    >
+                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                    </Button>
+                </View>
+            </Animated.View>
+        )
     }
-
-    function enterPhotos() {
-
-    }
-
 
 
     return (
@@ -127,32 +400,11 @@ export default function Register({ navigation }: any) {
                 <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 20 }}>
                     <View style={{ padding: 15 }}>
                         {step === 1 && enterName()}
-                        {step === 2 && enterBirthday()}
+                        {step === 2 && enterDob()}
                         {step === 3 && enterGender()}
-                        {step === 4 && enterPhone()}
-                        {step === 5 && confirmPhone()}
-                        {step === 6 && enterPhotos()}
-                    </View>
-
-                    <View className='ml-5 mr-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
-                        {step > 1 && (
-                            <TouchableOpacity onPress={() => { useStep(step - 1); decreaseProgress(17); }}>
-                                <CircleChevronLeft size={50} style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
-                            </TouchableOpacity>
-                        )}
-
-                        {step === 1 && (
-                            <TouchableOpacity onPress={() => { navigation.navigate('Welcome') }}>
-
-                                <CircleChevronLeft size={50} style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
-                            </TouchableOpacity>
-                        )}
-
-                        {step < 6 && (
-                            <TouchableOpacity onPress={() => { useStep(step + 1); increaseProgress(17); }}>
-                                <CircleChevronRight size={50} style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
-                            </TouchableOpacity>
-                        )}
+                        {step === 4 && enterPhotos()}
+                        {step === 5 && enterPhone()}
+                        {step === 6 && confirmPhone()}
                     </View>
                 </View>
             </ScrollView>
