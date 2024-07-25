@@ -1,7 +1,8 @@
-import { Client } from "appwrite";
+import { Account, Client } from "react-native-appwrite";
 
 class ClientStore {
     private static _client: Client | undefined;
+    private static _jwt: string | undefined;
 
     private constructor() { }
 

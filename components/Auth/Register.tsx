@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Animated, SafeAreaView, ScrollView, TouchableOpacity, View, Image, TextInput } from 'react-native';
+import { Animated, SafeAreaView, ScrollView, TouchableOpacity, View, Image, TextInput, ActivityIndicator } from 'react-native';
 import { Progress } from '~/components/ui/progress';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
@@ -16,8 +16,9 @@ import Woman from '~/assets/images/woman.svg'
 import { Plus, ChevronRight, ChevronLeft } from 'lucide-react-native';
 
 import { authHandler } from '~/lib/appwrite/auth';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { storageHandler } from '~/lib/appwrite/storage';
 
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 export default function Register({ navigation }: any) {
 
@@ -36,6 +37,10 @@ export default function Register({ navigation }: any) {
     const [code, setCode] = useState('');
     const inputRef = useRef(null);
 
+    const [verified, setVerified] = useState(false);
+    const [codeError, setCodeError] = useState('');
+    const [loadingCodeVerification, setLoadingCodeVerification] = useState(false);
+
     const [userId, setUserId] = useState("");
 
 
@@ -47,10 +52,20 @@ export default function Register({ navigation }: any) {
         }).start();
     }, [step]);
 
-    const handleChangeCode = (text) => {
+    const handleChangeCode = async (text: string) => {
         if (/^[0-9]*$/.test(text) && text.length <= 6) {
             setCode(text);
-            console.log(text)
+        }
+
+        if (text.length === 6) {
+            setLoadingCodeVerification(true);
+            let { session, err } = await authHandler.verifyMobileToken(userId, text);
+            if (err) {
+                setCodeError("Error verifying code.");
+            } else {
+                setVerified(true);
+            }
+            setLoadingCodeVerification(false);
         }
     };
 
@@ -258,8 +273,10 @@ export default function Register({ navigation }: any) {
                         </View>
                     </TouchableOpacity>
                 </View>
+            
 
                 <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+
                     <Button
                         className='rounded-full aspect-square w-[50px]'
                         onPress={() => { useStep(step - 1); decreaseProgress(17); }}
@@ -364,6 +381,21 @@ export default function Register({ navigation }: any) {
                     >
                         {renderCodeBoxes()}
                     </View>
+
+                    {loadingCodeVerification && (
+                        <ActivityIndicator className='mt-5' size='large' color='black' />
+                    )}
+
+                    {codeError != '' && (
+                        <Text className='text mt-3 font-bold'>Invalid code.</Text>
+                    )}
+
+                    {verified && (
+                        <Text className='text-500-green mt-3 font-bold'>Code verified.</Text>
+                    )
+
+                    }
+
                 </View>
 
                 <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
@@ -374,21 +406,49 @@ export default function Register({ navigation }: any) {
                         <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
                     </Button>
                     <Button
-                        className='rounded-full aspect-square w-[50px]'
-                        onPress={() => { 
-                            useStep(step + 1); 
-                            increaseProgress(17); 
-                            authHandler.verifyMobileToken(userId, code);
-                        
+                        className='rounded-full'
+                        disabled={!verified}
+                        onPress={async () => { 
+                            setLoadingCodeVerification(true);
+                            try {
+                                await authHandler.addUserToDatabase(userId, name, date.toISOString(), gender, imageURI);
+                                useStep(step + 1);
+                                increaseProgress(17);
+                            } catch (error) {
+                                setCodeError("There was an error creating your account.");
+                            }
+                            setLoadingCodeVerification(false);
                         }}
                     >
-                        <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
+                        <Text style={{ color: isDarkColorScheme ? 'black' : 'white' }}>Finish</Text>
                     </Button>
                 </View>
             </Animated.View>
         )
     }
 
+    function confirmationScreen() {
+        return (
+            <View className='p-2'>
+                <Text className='text-5xl font-bold mr-[20%]'>You're all set!</Text>
+                <Text className='font-bold'>Your account is ready to go.</Text>
+
+                <View className='pt-5' style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                    <Image source={{ uri: imageURI }} style={{ width: 150, height: 150, borderRadius: 75 }} />
+                    <Text className='text-2xl font-bold ml-5'>{name}</Text>
+                    <Text className='text-2xl font-bold ml-5'>{gender}</Text>
+                    <Text className='text-2xl font-bold ml-5'>{phone}</Text>
+                </View>
+
+                <Button
+                    className='mt-5'
+                    onPress={() => { navigation.navigate('Welcome') }}
+                >
+                    <Text style={{ color: isDarkColorScheme ? 'black' : 'white' }} >Go to home</Text>
+                </Button>
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView>
@@ -405,6 +465,7 @@ export default function Register({ navigation }: any) {
                         {step === 4 && enterPhotos()}
                         {step === 5 && enterPhone()}
                         {step === 6 && confirmPhone()}
+                        {step === 7 && confirmationScreen()}
                     </View>
                 </View>
             </ScrollView>

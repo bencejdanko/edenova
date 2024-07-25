@@ -1,16 +1,17 @@
-# Starter base
+# Edenova
 
-A starting point to help you set up your project quickly and use the common components provided by `react-native-reusables`. The idea is to make it easier for you to get started.
+
+## Dependencies
+
+Initiated with the `react-native-reusables` template. see [this link](https://rnr-docs.vercel.app/getting-started/introduction/) for documentation. 
+
+Comes prebuilt with NativeWind and darkmode capacilities. If your NativeWind is not being rendered, be sure to add your files to `content` in `tailwind.config.js`.
+
+SVGs are rendered using `react-native-svg-transformer`, which also requires changes in the metro config.
 
 ## Features
 
-- NativeWind v4
-- Dark and light mode
-    - Android Navigation Bar matches mode
-    - Persistant mode
-- Common components
-    - ThemeToggle, Avatar, Button, Card, Progress, Text, Tooltip
+ - Authentication
+    - Welcome Page
+    - Registration
 
-<img src="https://github.com/mrzachnugent/react-native-reusables/assets/63797719/42c94108-38a7-498b-9c70-18640420f1bc"
-     alt="starter-base-template"
-     style="width:270px;" />

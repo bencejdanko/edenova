@@ -1,5 +1,5 @@
 {
-  "name": "@rnr/starter-base",
+  "name": "@bencejdanko/edenova",
   "main": "index.js",
   "version": "1.0.0",
   "scripts": {
@@ -33,6 +33,7 @@
     "clsx": "^2.1.0",
     "expo": "^51.0.8",
     "expo-clipboard": "^6.0.3",
+    "expo-file-system": "^17.0.1",
     "expo-image-picker": "~15.0.5",
     "expo-linear-gradient": "^13.0.2",
     "expo-linking": "~6.3.1",
@@ -49,6 +50,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.1",
+    "react-native-appwrite": "^0.4.0",
     "react-native-confirmation-code-field": "^7.4.0",
     "react-native-date-picker": "^5.0.4",
     "react-native-elements": "^3.4.3",
@@ -61,6 +63,7 @@
     "react-native-safe-area-context": "^4.10.1",
     "react-native-screens": "^3.31.1",
     "react-native-sse": "^1.2.1",
+    "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.6",
     "tailwind-merge": "^2.2.1",
     "tailwindcss": "^3.4.1",
