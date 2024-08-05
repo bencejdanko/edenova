@@ -93,10 +93,7 @@ export default function RootLayout() {
             name="Home"
             component={Home}
             options={{
-              headerShown: true,
-              headerLeft: () => <Menu />,
-              headerRight: () => <ThemeToggle />,
-              title: null,
+              headerShown: false
             }}
           />
 

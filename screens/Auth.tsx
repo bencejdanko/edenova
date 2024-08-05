@@ -1,13 +1,19 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
-
+import { authHandler } from '~/lib/appwrite/auth';
 import Welcome from '~/components/Auth/Welcome';
 import Register from '~/components/Auth/Register';
-
 import { X } from 'lucide-react-native';
 
 export default function Auth({ navigation }: any) {
     const Stack = createNativeStackNavigator();
+
+    const userLoggedInPromise = authHandler.getUserSession();
+    userLoggedInPromise.then((user) => {
+        if (user) {
+            navigation.navigate('Home');
+        }
+    });
+
     return (
         <Stack.Navigator>
             <Stack.Screen 

@@ -86,4 +86,15 @@ export const authHandler = {
 
     },
 
+    getUserSession: async () => {
+        try {
+            const client = ClientStore.getClient();
+            const account = new Account(client);
+            const session = await account.get();
+            return session;
+        } catch (error) {
+            return null;
+        }
+    }
+
 };

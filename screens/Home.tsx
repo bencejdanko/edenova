@@ -1,22 +1,47 @@
-import React from 'react';
-import { Button } from '~/components/ui/button';
-import { Progress } from '~/components/ui/progress';
-import { Text } from '~/components/ui/text';
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+import Menu from "~/components/Menu";
+import { Info } from "lucide-react-native";
+
+import Base from "~/components/Home/Base";
+import Application from "~/components/Home/Application";
+
 
 export default function Home({ navigation }: any) {
-    return (
-        <SafeAreaView>
-            <ScrollView>
-                <View className='p-3'>
-                    <Progress value={33} className='mt-10 mb-10' />
-                </View>
 
-                <Button onPress={() => navigation.navigate('Auth')}>
-                    <Text>Go to home</Text>
-                </Button>
+    const Tab = createBottomTabNavigator();
+
+    return (
+        <Tab.Navigator>
+            <Tab.Screen 
+                name="Base" 
+                component={Base} 
+                options={{
+                    headerShown: true,
+                    title: "",
+                    headerLeft: () => <Menu />,
+                    headerRight: () => <Info />,
+                    headerStyle: {
+                        backgroundColor: 'transparent'
+                    }
+                }}
                 
-            </ScrollView>
-        </SafeAreaView>
+                />
+            <Tab.Screen 
+                name="Application" 
+                component={Application} 
+                options={{
+                    headerShown: true,
+                    title: "",
+                    headerLeft: () => <Menu />,
+                    headerRight: () => <Info />,
+                    headerStyle: {
+                        backgroundColor: 'transparent'
+                    }
+                }}
+                
+                />
+        </Tab.Navigator>
     );
 }

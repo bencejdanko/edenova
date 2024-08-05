@@ -9,6 +9,8 @@ Comes prebuilt with NativeWind and darkmode capacilities. If your NativeWind is 
 
 SVGs are rendered using `react-native-svg-transformer`, which also requires changes in the metro config.
 
+If you have troubles with compilation, try `npx react-native start --reset-cache` to reset to clear the Metro Bundler cache. 
+
 ## Features
 
  - Authentication
