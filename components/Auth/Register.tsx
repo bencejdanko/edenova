@@ -43,7 +43,7 @@ export default function Register({ navigation }: any) {
 
     const [userId, setUserId] = useState("");
 
-    const stepInterval = 100/9;
+    const stepInterval = 100 / 9;
 
 
     useEffect(() => {
@@ -259,16 +259,12 @@ export default function Register({ navigation }: any) {
                 <Text className='text mt-3 font-bold mr-[30%]'>You'll be able to upload more photos later.</Text>
 
                 <View>
-                    <TouchableOpacity onPress={openImagePicker}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ width: 150, height: 150, borderRadius: 75, backgroundColor: 'lightgray', justifyContent: 'center', alignItems: 'center', margin: 15, }}>
-                                {imageURI === '' ? (
-                                    <Plus style={{ color: 'black' }} />
-                                ) : (
-                                    <Image source={{ uri: imageURI }} style={{ width: 150, height: 150, borderRadius: 75 }} />
-                                )}
-                            </View>
-                        </View>
+                    <TouchableOpacity onPress={openImagePicker} className='basis-1/2 bg-[lightgray] justify-center items-center m-15 aspect-square rounded-full m-5'>
+                        {imageURI === '' ? (
+                            <Plus style={{ color: 'black' }} />
+                        ) : (
+                            <Image source={{ uri: imageURI }} style={{ width: 150, height: 150, borderRadius: 75 }} />
+                        )}
                     </TouchableOpacity>
                 </View>
 
@@ -385,7 +381,7 @@ export default function Register({ navigation }: any) {
                                 setCodeError("There was an error adding you to the database.");
                                 navigation.navigate('Welcome');
                                 return
-                            } 
+                            }
                             useStep(step + 1);
                             increaseProgress();
                             setLoadingCodeVerification(false);
@@ -486,8 +482,8 @@ export default function Register({ navigation }: any) {
 
                 <Button
                     className='mt-5'
-                    onPress={async () => { 
-                        navigation.navigate('Welcome') 
+                    onPress={async () => {
+                        navigation.navigate('Welcome')
                     }}
                 >
                     <Text style={{ color: isDarkColorScheme ? 'black' : 'white' }} >Upload</Text>

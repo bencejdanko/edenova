@@ -2,10 +2,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import Menu from "~/components/Menu";
-import { Info } from "lucide-react-native";
+import { Info, Heart, Users, Settings } from "lucide-react-native";
 
 import Base from "~/components/Home/Base";
 import Application from "~/components/Home/Application";
+import Connections from "~/components/Home/Connections";
 
 
 export default function Home({ navigation }: any) {
@@ -24,10 +25,26 @@ export default function Home({ navigation }: any) {
                     headerRight: () => <Info />,
                     headerStyle: {
                         backgroundColor: 'transparent'
-                    }
+                    },
+                    tabBarIcon: () => <Heart />
                 }}
-                
                 />
+
+            <Tab.Screen
+                name='Community'
+                component={Connections}
+                options={{
+                    headerShown: true,
+                    title: "",
+                    headerLeft: () => <Menu />,
+                    headerRight: () => <Info />,
+                    headerStyle: {
+                        backgroundColor: 'transparent'
+                    },
+                    tabBarIcon: () => <Users />
+                }}
+            />
+
             <Tab.Screen 
                 name="Application" 
                 component={Application} 
@@ -38,7 +55,8 @@ export default function Home({ navigation }: any) {
                     headerRight: () => <Info />,
                     headerStyle: {
                         backgroundColor: 'transparent'
-                    }
+                    },
+                    tabBarIcon: () => <Settings />
                 }}
                 
                 />
