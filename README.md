@@ -1,5 +1,13 @@
 # Edenova
 
+# Development Instructions
+
+You will need to have Node, npm installed on your machine, and the Expo Go App installed on your phone.
+
+1. run `npm i` in the top level
+2. run `npm run dev` if you developing on IPhone.
+3. Scan the produced QR code with your camera. 
+4. You can now work on the app with hot-reloading.
 
 ## Dependencies
 
