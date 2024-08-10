@@ -5,11 +5,9 @@ import {
     Dimensions,
 } from 'react-native';
 
-import FacebookLogo from '~/assets/images/meta-icon.svg';
-import GoogleLogo from '~/assets/images/Google__G__logo.svg';
-import AppleLogo from '~/assets/images/Apple_logo_black.svg';
 
-import Edenova from '~/assets/images/edenova.svg';
+import EdenovaLetters from '~/assets/images/EdenovaLetters.svg';
+import EdenovaHeart from '~/assets/images/EdenovaHeart.svg';
 
 import { useColorScheme } from '~/lib/useColorScheme';
 
@@ -26,50 +24,34 @@ export default function Welcome({ navigation }: any) {
     let { width, height } = Dimensions.get('window');
     const { isDarkColorScheme } = useColorScheme();
     return (
-        <SafeAreaView>
+        <SafeAreaView className='bg-background'>
             <ScrollView>
                 <View style={{ height: height, flex: 1, justifyContent: 'center' }}>
                     <CardContent>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                            <Edenova width={200} height={200} style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
+                        <View className='items-center'>
+                            <View className='-m-10'>
+                                <EdenovaHeart width={150} height={150} />
+                            </View>
+                            <EdenovaLetters width={200} height={200} style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
                         </View>
 
                         <Button
-                            className='mt-3'
+                            className='rounded-full'
                             onPress={() => { navigation.navigate('Register') }}
-                            style={{ flexDirection: 'row', justifyContent: 'center'  }}
                         >
-                            <Text>Use mobile number</Text>
+                            <Text>Sign up</Text>
                         </Button>
 
                         <Button
-                            className='mt-3'
-                            onPress={() => {  }}
-                            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                            className='mt-3 rounded-full bg-background border border-primary'
+                            onPress={() => { navigation.navigate('Register') }}
+                            style={{ flexDirection: 'row', justifyContent: 'center' }}
                         >
-                            <GoogleLogo style={{ width: 24, height: 24 }} />
-                            <Text>Google</Text>
-                        </Button>
-                        <Button
-                            className='mt-3'
-                            onPress={() => { console.log('Apple') }}
-                            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-                        >
-                            <AppleLogo style={{ width: 24, height: 24, color: isDarkColorScheme ? 'black' : 'white' }} />
-                            <Text>Apple</Text>
+                            <Text className='text-primary'>Log in</Text>
                         </Button>
 
-                        <Button
-                            className='mt-3'
-                            onPress={() => { console.log('Apple') }}
-                            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-                        >
-                            <FacebookLogo style={{ width: 24, height: 24, color: isDarkColorScheme ? 'black' : 'white' }} />
-                            <Text>Facebook</Text>
-                        </Button>
-
-                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                        <View className='p-3'>
                             <Text>By signing up you agree to our Terms. See how we use your data in our Privacy Policy.</Text>
                         </View>
 

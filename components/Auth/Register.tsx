@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Animated, SafeAreaView, ScrollView, TouchableOpacity, View, Image, TextInput, ActivityIndicator } from 'react-native';
+import { Animated, SafeAreaView, ScrollView, TouchableOpacity, View, Image, TextInput, ActivityIndicator, Dimensions } from 'react-native';
 import { Progress } from '~/components/ui/progress';
 import { Text } from '~/components/ui/text';
 import { Button } from '~/components/ui/button';
@@ -45,6 +45,8 @@ export default function Register({ navigation }: any) {
 
     const stepInterval = 100 / 9;
 
+    let { width, height } = Dimensions.get('window');
+
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -53,6 +55,7 @@ export default function Register({ navigation }: any) {
             useNativeDriver: true,
         }).start();
     }, [step]);
+
 
     const handleChangeCode = async (text: string) => {
         if (/^[0-9]*$/.test(text) && text.length <= 6) {
@@ -75,14 +78,11 @@ export default function Register({ navigation }: any) {
         let boxes = [];
         for (let i = 0; i < 6; i++) {
             boxes.push(
-                <View key={i} style={{
-                    width: 40,
-                    height: 50,
-                    borderBottomWidth: 2,
-                    borderBottomColor: '#000',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
+                <View key={i}
+
+                    className='border-b-2 border-black w-[40px] h-[50px] flex items-center justify-center'
+
+                >
                     <TextInput
                         style={{
                             fontSize: 24,
@@ -156,7 +156,7 @@ export default function Register({ navigation }: any) {
         return (
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
                 <Text className='text-5xl font-bold mr-[20%]'>What is your name?</Text>
-                <Text className='text-xl mt-3 font-bold'>You cannot change this later.</Text>
+                <Text className='text-xl mt-3 font-bold text-muted-foreground'>You cannot change this later.</Text>
                 <Input className='mt-5' placeholder='Name' defaultValue={name} onChangeText={text => setName(text)} />
                 <Text className='text mt-3 font-bold'>This will appear publicly.</Text>
 
@@ -181,7 +181,7 @@ export default function Register({ navigation }: any) {
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
                 <Text className='text-5xl font-bold mr-[20%]'>When were you born?</Text>
 
-                <Text className='text mt-3 font-bold'>You must be at least 18 to use this app.</Text>
+                <Text className='text mt-3 font-bold text-muted-foreground'>You must be at least 18 to use this app.</Text>
                 <View className='mt-10' style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <DateTimePicker
                         mode='date'
@@ -219,12 +219,12 @@ export default function Register({ navigation }: any) {
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
                 <Text className='text-5xl font-bold mr-[20%]'>What is your gender?</Text>
                 <ToggleGroup value={gender} onValueChange={setGender} type='single' className='p-5'>
-                    <ToggleGroupItem value='m' aria-label='Toggle bold' className={`w-[100px] aspect-square ${gender === 'm' ? 'bg-[gray]' : 'bg-[lightgray]'}`}>
+                    <ToggleGroupItem value='m' aria-label='Toggle bold' className={`w-[100px] aspect-square ${gender === 'm' ? 'bg-muted-foreground' : 'bg-muted'}`}>
                         <Man style={{ color: 'black' }} />
                         <Text>Man</Text>
                     </ToggleGroupItem>
 
-                    <ToggleGroupItem value='w' aria-label='Toggle italic' className={`w-[100px] aspect-square ${gender === 'w' ? 'bg-[gray]' : 'bg-[lightgray]'}`}>
+                    <ToggleGroupItem value='w' aria-label='Toggle italic' className={`w-[100px] aspect-square ${gender === 'w' ? 'bg-muted-foreground' : 'bg-muted'}`}>
                         <Woman style={{ color: 'black' }} />
                         <Text>Woman</Text>
                     </ToggleGroupItem>
@@ -240,7 +240,7 @@ export default function Register({ navigation }: any) {
 
                     <Button
                         className='rounded-full aspect-square w-[50px]'
-                        disabled={gender == ''}
+                        disabled={gender == '' || gender == undefined}
                         onPress={() => { useStep(step + 1); increaseProgress(); }}
                     >
                         <ChevronRight style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
@@ -312,7 +312,7 @@ export default function Register({ navigation }: any) {
                         }}
                     />
                 </View>
-                <Text className='text mt-3 font-bold'>We will send you a verification code at the end.</Text>
+                <Text className='text mt-3 font-bold'>We will send you a verification code.</Text>
 
                 <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
                     <Button
@@ -325,7 +325,7 @@ export default function Register({ navigation }: any) {
                     <Button
                         className='rounded-full aspect-square w-[50px]'
                         disabled={!phoneValid}
-                        onPress={() => {
+                        onPress={async () => {
                             useStep(step + 1);
                             increaseProgress();
                         }}
@@ -337,22 +337,16 @@ export default function Register({ navigation }: any) {
         );
     }
 
+    async function test(phone: string) {
+        let token = { userId: 'none', token: 'none' };
+        return { token, err: null }
+    }
+
     function confirmation() {
         return (
             <View className='p-2'>
                 <Text className='text-5xl font-bold mr-[20%]'>Please review your information.</Text>
                 <Text className='font-bold'>Make sure everything is correct.</Text>
-                <TouchableOpacity onPress={openImagePicker}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ width: 150, height: 150, borderRadius: 75, backgroundColor: 'lightgray', justifyContent: 'center', alignItems: 'center', margin: 15, }}>
-                            {imageURI === '' ? (
-                                <Plus style={{ color: 'black' }} />
-                            ) : (
-                                <Image source={{ uri: imageURI }} style={{ width: 150, height: 150, borderRadius: 75 }} />
-                            )}
-                        </View>
-                    </View>
-                </TouchableOpacity>
                 <Text className='text-2xl font-bold ml-5'>{name}</Text>
                 <Text className='text-2xl font-bold ml-5'>{gender}</Text>
                 <Text className='text-2xl font-bold ml-5'>{phone}</Text>
@@ -367,16 +361,7 @@ export default function Register({ navigation }: any) {
                         className='rounded-full'
                         onPress={async () => {
                             setLoadingCodeVerification(true);
-                            let { token, err } = await authHandler.getMobileToken(phone)
-                            if (err) {
-                                setCodeError("There was an error contacting your phone number.");
-                                navigation.navigate('Welcome');
-                                return
-                            } else {
-                                setUserId(token?.userId || '');
-                            }
-
-                            let { user, err: userErr } = await authHandler.addUserToDatabase(userId, name, date.toISOString(), gender, imageURI);
+                            let { user, err: userErr } = await authHandler.addUserToDatabase(userId, name, date.toISOString(), gender);
                             if (userErr) {
                                 setCodeError("There was an error adding you to the database.");
                                 navigation.navigate('Welcome');
@@ -401,7 +386,7 @@ export default function Register({ navigation }: any) {
         return (
 
             <Animated.View className='p-3' style={{ opacity: fadeAnim }}>
-                <Text className='text-5xl font-bold mr-[20%]'>Enter the code we sent you</Text>
+                <Text className='text-5xl font-bold mr-[20%]'>Confirm your phone number</Text>
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <TextInput
                         style={{
@@ -443,6 +428,18 @@ export default function Register({ navigation }: any) {
 
                     }
 
+                    <Button 
+                    className='m-5'
+                    onPress={async () => {
+                        let { token, err } = await authHandler.getMobileToken(phone)
+                        if (err) {
+                            setCodeError("There was an error contacting your phone number.");
+                            navigation.navigate('Welcome');
+                            return
+                        }
+                        setUserId(token.userId);
+                    }}><Text>Message me a Code</Text></Button>
+
                 </View>
 
                 <View className='mt-5' style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 }}>
@@ -453,7 +450,7 @@ export default function Register({ navigation }: any) {
                         <ChevronLeft style={{ color: isDarkColorScheme ? 'black' : 'white' }} />
                     </Button>
                     <Button
-                        className='rounded-full'
+                        className='rounded-full aspect-square w-[50px]'
                         disabled={!verified}
                         onPress={async () => {
                             useStep(step + 1);
@@ -493,10 +490,10 @@ export default function Register({ navigation }: any) {
     }
 
     return (
-        <SafeAreaView>
+        <SafeAreaView className='bg-background' style={{ height: height }}>
             <ScrollView>
                 <View className='mt-5' style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Progress value={progress} style={{ width: '90%', height: 10, backgroundColor: 'lightgray' }} />
+                    <Progress className='bg-secondary' value={progress} style={{ width: '90%', height: 10 }} />
                 </View>
 
                 <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 20 }}>
@@ -504,11 +501,10 @@ export default function Register({ navigation }: any) {
                         {step === 1 && enterName()}
                         {step === 2 && enterDob()}
                         {step === 3 && enterGender()}
-                        {step === 4 && enterPhotos()}
-                        {step === 5 && enterPhone()}
+                        {step === 4 && enterPhone()}
+                        {step === 5 && confirmPhone()}
                         {step === 6 && confirmation()}
-                        {step === 7 && confirmPhone()}
-                        {step === 8 && fin()}
+                        {step === 7 && fin()}
                     </View>
                 </View>
             </ScrollView>

@@ -3,6 +3,10 @@ import { Account, ID, Models, AppwriteException, Databases, Storage } from "reac
 import { Image } from "react-native";
 import * as FileSystem from 'expo-file-system'
 
+const EDENOVA_DATABASE_ID = '66b65a1900113df20432'
+const USER_COLLECTION_ID = '66b65a210028918eaddd'
+const BASIC_BUCKET_ID = '66a1de32000d3e999028'
+
 const getImageSize = async (uri: string): Promise<number> => {
     const file = await FileSystem.getInfoAsync(uri);
     return file.size;
@@ -41,16 +45,45 @@ export const authHandler = {
         }
     },
 
+
     // Format date to ISO 8601
-    addUserToDatabase: async (userId: string, name: string, dob: string, gender: string, profilePicUri: string): Promise<{ user: Models.Document | null, err: Error | null }> => {
+    addUserToDatabase: async (userId: string, name: string, dob: string, gender: string): Promise<{ user: Models.Document | null, err: Error | null }> => {
         // Upload profile picture
+        const client = ClientStore.getClient();
+        const profilePicId = ID.unique();
+        
+        // Add user to database
+        try {
+            const databases = new Databases(client);
+            const user = await databases.createDocument(
+                EDENOVA_DATABASE_ID,
+                USER_COLLECTION_ID,
+                ID.unique(),
+                {
+                    userId,
+                    name,
+                    dob,
+                    gender
+                }
+            )
+
+            return { user, err: null };
+        } catch (error) {
+            console.log('Error creating user:', error);
+            return { user: null, err: new Error('Error creating user') };
+        }
+
+    },
+
+
+    uploadUserImage: async (userId: string, profilePicUri: string): Promise<{ profilePicId: string | null, err: Error | null }> => {
         const client = ClientStore.getClient();
         const storage = new Storage(client);
         const profilePicId = ID.unique();
         
         try {
             const response = await storage.createFile(
-                '66a1de32000d3e999028',
+                BASIC_BUCKET_ID,
                 profilePicId,
                 {
                     name: ID.unique(),
@@ -59,31 +92,11 @@ export const authHandler = {
                     uri: profilePicUri,
                 }
             );
+            return { profilePicId, err: null };
         } catch (error) {
             console.log('Error uploading image:', error);
-            return { user: null, err: new Error('Error uploading image') };
+            return { profilePicId: null, err: new Error('Error uploading image') };
         }
-
-        // Add user to database
-        try {
-            const databases = new Databases(client);
-            const result = await databases.createDocument(
-                '65ee687cf01728b70c24',
-                '66a1d9dc0003240d73ba',
-                ID.unique(),
-                {
-                    userId,
-                    name,
-                    dob,
-                    gender,
-                    profilePicId,
-                }
-            )
-        } catch (error) {
-            console.log('Error creating user:', error);
-            return { user: null, err: new Error('Error creating user') };
-        }
-
     },
 
     getUserSession: async () => {

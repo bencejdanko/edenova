@@ -30,6 +30,7 @@ export default function Auth({ navigation }: any) {
                 component={Register}
                 options={
                     {
+                        headerShadowVisible: false,
                         headerShown: true,
                         title: null,
                         headerLeft: () => (
@@ -40,9 +41,9 @@ export default function Auth({ navigation }: any) {
                             />
                         ),
                         headerStyle: {
-                            backgroundColor: 'transparent'
+                            backgroundColor: 'hsl(var(--background))'
+                            
                         }
-                        
                     }
                 }
             />
