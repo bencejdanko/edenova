@@ -1,4 +1,4 @@
-import Edenova from '~/assets/images/edenova.svg';
+import { Menu } from 'lucide-react-native';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,45 +17,22 @@ import { Text } from '~/components/ui/text';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useNavigation } from '@react-navigation/native';
+import { authHandler } from '~/lib/appwrite/auth';
 
-
-export default function Menu() {
+export default function DropMenu() {
 
     const { isDarkColorScheme } = useColorScheme();
     const navigation = useNavigation();
-
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant='ghost'>
-                    <Edenova width={100} height={100} style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
+                    <Menu style={{ color: isDarkColorScheme ? 'white' : 'black' }} />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className='w-64 native:w-72'>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <Text>Invite users</Text>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                            <Animated.View entering={FadeIn.duration(200)}>
-                                <DropdownMenuItem>
-                                    <Text>Email</Text>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Text>Message</Text>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <Text>More...</Text>
-                                </DropdownMenuItem>
-                            </Animated.View>
-                        </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                     <Text>Settings</Text>
@@ -63,13 +40,16 @@ export default function Menu() {
                 <DropdownMenuItem>
                     <Text>Support</Text>
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                    <Text>API</Text>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                    onPress={() => {
-                        navigation.navigate('Auth');
+                    onPress={async () => {
+                        let { err } = await authHandler.logout();
+                        
+                        let { session } = await authHandler.getUserSession();
+                        if (!session) {
+                            navigation.navigate('Auth');
+                        }
+
                     }}
                 >
                     <Text

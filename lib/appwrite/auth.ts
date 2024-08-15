@@ -24,7 +24,7 @@ export const authHandler = {
             return { token, err: null };
         } catch (error) {
             const appwriteError = error as AppwriteException;
-            console.log(appwriteError.message);
+            console.log("error with phone number",appwriteError.message);
             return { token: null, err: new Error(appwriteError.message) };
         }
     },
@@ -42,6 +42,18 @@ export const authHandler = {
             const appwriteError = error as AppwriteException;
             console.log(appwriteError.message);
             return { session: null, err: new Error(appwriteError.message) };
+        }
+    },
+
+    logout: async (): Promise<{ err: Error | null }> => {
+        const client = ClientStore.getClient();
+        const account = new Account(client);
+        try {
+            await account.deleteSessions();
+            return { err: null };
+        } catch (error) {
+            console.log('Error logging out:', error);
+            return { err: new Error('Error logging out') };
         }
     },
 
@@ -99,15 +111,15 @@ export const authHandler = {
         }
     },
 
-    getUserSession: async () => {
+    getUserSession: async (): Promise<{session: Models.User<Models.Preferences> | null, err: Error | null}> => {
         try {
             const client = ClientStore.getClient();
             const account = new Account(client);
-            const session = await account.get();
-            return session;
+            let session = await account.get();
+            return {session, err: null};
+
         } catch (error) {
-            return null;
+            return {session: null, err: new Error('Error getting user session')};
         }
     }
-
 };

@@ -45,7 +45,7 @@ export default function Welcome({ navigation }: any) {
 
                         <Button
                             className='mt-3 rounded-full bg-background border border-primary'
-                            onPress={() => { navigation.navigate('Register') }}
+                            onPress={() => { navigation.navigate('Login') }}
                             style={{ flexDirection: 'row', justifyContent: 'center' }}
                         >
                             <Text className='text-primary'>Log in</Text>

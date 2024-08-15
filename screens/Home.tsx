@@ -1,7 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import Menu from "~/components/Menu";
+import EdenovaInfo from "~/components/EdenovaInfo";
+
+import DropMenu from "~/components/DropMenu";
 import { Info, Heart, Users, Settings } from "lucide-react-native";
 
 import Base from "~/components/Home/Base";
@@ -13,18 +15,25 @@ export default function Home({ navigation }: any) {
 
     const Tab = createBottomTabNavigator();
 
+
+
     return (
-        <Tab.Navigator>
+        <Tab.Navigator
+            screenOptions={{
+                tabBarActiveBackgroundColor: 'black',
+            }}
+        >
+
             <Tab.Screen 
                 name="Base" 
                 component={Base} 
                 options={{
                     headerShown: true,
                     title: "",
-                    headerLeft: () => <Menu />,
-                    headerRight: () => <Info />,
+                    headerLeft: () => <DropMenu />,
+                    headerRight: () => <EdenovaInfo />,
                     headerStyle: {
-                        backgroundColor: 'transparent'
+                        backgroundColor: 'hsl(var(--background))'
                     },
                     tabBarIcon: () => <Heart />
                 }}
@@ -36,10 +45,10 @@ export default function Home({ navigation }: any) {
                 options={{
                     headerShown: true,
                     title: "",
-                    headerLeft: () => <Menu />,
-                    headerRight: () => <Info />,
+                    headerLeft: () => <DropMenu />,
+                    headerRight: () => <EdenovaInfo />,
                     headerStyle: {
-                        backgroundColor: 'transparent'
+                        backgroundColor: 'hsl(var(--background))'
                     },
                     tabBarIcon: () => <Users />
                 }}
@@ -51,14 +60,14 @@ export default function Home({ navigation }: any) {
                 options={{
                     headerShown: true,
                     title: "",
-                    headerLeft: () => <Menu />,
-                    headerRight: () => <Info />,
+                    headerLeft: () => <DropMenu />,
+                    headerRight: () => <EdenovaInfo />,
                     headerStyle: {
-                        backgroundColor: 'transparent'
+                        backgroundColor: 'hsl(var(--background))'
                     },
                     tabBarIcon: () => <Settings />
                 }}
-                
+    
                 />
         </Tab.Navigator>
     );

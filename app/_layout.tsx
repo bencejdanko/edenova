@@ -1,10 +1,7 @@
 import '~/global.css';
-import Menu from '~/components/Menu';
 import Auth from '~/screens/Auth';
 import Home from '~/screens/Home';
-import Register from '~/screens/Register';
 
-import { X, Circle, Search, Users } from 'lucide-react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, ThemeProvider, useNavigationState } from '@react-navigation/native';
