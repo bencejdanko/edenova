@@ -1,4 +1,11 @@
-# Edenova
+# Edenova, a Christian Dating App (Abandoned)
+This repository contains an unfinished but functional dating app prototype, built using React Native Expo and Appwrite. Designed with a Hinge-style UI, the app was an experiment in mobile authentication, user verification, and real-time interactions.
+
+- React Native Expo: Cross-platform development with a smooth and modern UI.
+- Appwrite: Backend-as-a-service for authentication, database, and real-time messaging.
+- SMS Authentication & Verification: Leveraging Appwrite’s then-new SMS auth system for secure onboarding.
+
+While the team and the app itself never reached launch, this project was an invaluable experience in exploring Appwrite’s capabilities, rapid authentication flows, and modern mobile development patterns. It remains a useful reference for anyone looking to integrate authentication, messaging, and profile-based interactions into a mobile app.
 
 # Development Instructions
 
@@ -18,10 +25,3 @@ Comes prebuilt with NativeWind and darkmode capacilities. If your NativeWind is 
 SVGs are rendered using `react-native-svg-transformer`, which also requires changes in the metro config.
 
 If you have troubles with compilation, try `npx react-native start --reset-cache` to reset to clear the Metro Bundler cache. 
-
-## Features
-
- - Authentication
-    - Welcome Page
-    - Registration
-
